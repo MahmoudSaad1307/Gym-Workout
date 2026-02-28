@@ -1,14 +1,15 @@
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { useGymStore, type Split, type WeightUnit } from '@/store/useGymStore';
 import { format } from 'date-fns';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Activity, CalendarIcon, Minus, Plus } from 'lucide-react';
+import { CalendarIcon, Plus, Minus, Activity } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { useGymStore, type Split } from '@/store/useGymStore';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from 'sonner';
 
 const splits: Split[] = ['Push', 'Pull', 'Arms & Core'];
@@ -18,20 +19,17 @@ const LogWorkout = () => {
     exercises,
     currentWorkout,
     unitPreference,
+    setUnitPreference,
     setSplit,
     setDate,
     updateCardio,
     updateSet,
     addSet,
     removeSet,
-    setExerciseUnit,
     completeWorkout,
   } = useGymStore();
 
   const splitExercises = exercises.filter((e) => e.split === currentWorkout.split);
-
-  const getExerciseUnit = (exerciseId: string): WeightUnit =>
-    currentWorkout.exerciseUnits[exerciseId] ?? unitPreference;
 
   const handleComplete = () => {
     completeWorkout();
@@ -49,6 +47,15 @@ const LogWorkout = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Log Workout</h1>
+        <div className="flex items-center gap-2">
+          <Label className="text-xs text-muted-foreground">lbs</Label>
+          <Switch
+            checked={unitPreference === 'kgs'}
+            onCheckedChange={(checked) => setUnitPreference(checked ? 'kgs' : 'lbs')}
+            className="data-[state=checked]:bg-primary"
+          />
+          <Label className="text-xs text-muted-foreground">kgs</Label>
+        </div>
       </div>
 
       {/* Date Picker */}
@@ -143,37 +150,17 @@ const LogWorkout = () => {
         >
           {splitExercises.map((exercise) => {
             const sets = currentWorkout.exercises[exercise.id] || [{ reps: 0, weight: 0 }];
-            const unit = getExerciseUnit(exercise.id);
             return (
               <Card key={exercise.id} className="bg-card border-border overflow-hidden">
                 <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <img
-                        src={exercise.imageUrl}
-                        alt={exercise.name}
-                        className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
-                        loading="lazy"
-                      />
-                      <CardTitle className="text-sm font-semibold truncate">{exercise.name}</CardTitle>
-                    </div>
-                    {/* Per-exercise unit toggle */}
-                    <div className="flex items-center gap-0.5 bg-secondary rounded-lg p-0.5 flex-shrink-0">
-                      {(['lbs', 'kgs'] as WeightUnit[]).map((u) => (
-                        <button
-                          key={u}
-                          onClick={() => setExerciseUnit(exercise.id, u)}
-                          className={cn(
-                            'px-2.5 py-1 rounded-md text-[10px] font-bold transition-all',
-                            unit === u
-                              ? 'bg-primary text-primary-foreground shadow'
-                              : 'text-muted-foreground hover:text-foreground',
-                          )}
-                        >
-                          {u}
-                        </button>
-                      ))}
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={exercise.imageUrl}
+                      alt={exercise.name}
+                      className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                      loading="lazy"
+                    />
+                    <CardTitle className="text-sm font-semibold">{exercise.name}</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2">
@@ -181,7 +168,7 @@ const LogWorkout = () => {
                   <div className="grid grid-cols-[2rem_1fr_1fr_2rem] gap-2 text-[10px] text-muted-foreground font-medium">
                     <span>Set</span>
                     <span>Reps</span>
-                    <span>Weight ({unit})</span>
+                    <span>Weight ({unitPreference})</span>
                     <span></span>
                   </div>
                   {sets.map((s, i) => (

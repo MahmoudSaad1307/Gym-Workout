@@ -1,11 +1,10 @@
-import { motion } from 'framer-motion';
-import { Clock, Dumbbell, Settings, TrendingUp } from 'lucide-react';
+import { Dumbbell, Clock, Settings } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const tabs = [
-  { path: '/', label: 'Log', icon: Dumbbell },
+  { path: '/', label: 'Log Workout', icon: Dumbbell },
   { path: '/history', label: 'History', icon: Clock },
-  { path: '/progress', label: 'Progress', icon: TrendingUp },
   { path: '/manage', label: 'Exercises', icon: Settings },
 ];
 
