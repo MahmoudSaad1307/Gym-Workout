@@ -206,11 +206,16 @@ export const useGymStore = create<GymState>()(
             sets: currentWorkout.exercises[e.id] || [],
           }));
 
+        const cardioInKm = {
+          ...currentWorkout.cardio,
+          distance: Math.round(currentWorkout.cardio.distance * 1.60934 * 100) / 100,
+        };
+
         const log: WorkoutLog = {
           id: Date.now().toString(),
           date: new Date(currentWorkout.date).toISOString(),
           split: currentWorkout.split,
-          cardio: currentWorkout.cardio,
+          cardio: cardioInKm,
           exercises: exerciseLogs,
         };
 

@@ -108,7 +108,7 @@ const LogWorkout = () => {
               />
             </div>
             <div>
-              <Label className="text-xs text-muted-foreground mb-1.5 block">Dist (km)</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Dist (miles)</Label>
               <Input
                 type="number"
                 step="0.1"
