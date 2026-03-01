@@ -284,12 +284,26 @@ export const useGymStore = create<GymState>()(
     }),
     {
       name: 'gym-tracker-storage',
+      version: 1,
       partialize: (state) => ({
         exercises: state.exercises,
         workoutLogs: state.workoutLogs,
         progressEntries: state.progressEntries,
         unitPreference: state.unitPreference,
       }),
+      migrate: (persisted: any, version: number) => {
+        if (version === 0) {
+          // Merge allSplits flag from defaults into persisted exercises
+          const allSplitsMap = new Map(
+            defaultExercises.filter(e => e.allSplits).map(e => [e.id, true])
+          );
+          persisted.exercises = (persisted.exercises || []).map((e: any) => ({
+            ...e,
+            allSplits: allSplitsMap.get(e.id) || e.allSplits || undefined,
+          }));
+        }
+        return persisted;
+      },
     },
   ),
 );
