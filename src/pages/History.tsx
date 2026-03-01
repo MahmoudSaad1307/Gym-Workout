@@ -28,7 +28,7 @@ function cloneExercises(exercises: ExerciseLog[]): ExerciseLog[] {
 }
 
 const History = () => {
-  const { workoutLogs, deleteWorkout, updateWorkoutLog } = useGymStore();
+  const { workoutLogs, deleteWorkout, updateWorkoutLog, exercises: allExercises } = useGymStore();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -86,6 +86,25 @@ const History = () => {
       next[exIdx].unit = unit;
       return next;
     });
+  };
+
+  const getAvailableExercises = (split: string) => {
+    return allExercises
+      .filter((e) => e.split === split || e.allSplits)
+      .filter((e) => !draftExercises.some((d) => d.exerciseId === e.id));
+  };
+
+  const addDraftExercise = (exerciseId: string) => {
+    const exercise = allExercises.find((e) => e.id === exerciseId);
+    if (!exercise) return;
+    setDraftExercises((prev) => [
+      ...prev,
+      { exerciseId: exercise.id, exerciseName: exercise.name, unit: 'lbs', sets: [{ reps: 0, weight: 0 }] },
+    ]);
+  };
+
+  const removeDraftExercise = (exIdx: number) => {
+    setDraftExercises((prev) => prev.filter((_, i) => i !== exIdx));
   };
 
   if (workoutLogs.length === 0) {
@@ -269,7 +288,16 @@ const History = () => {
                           {draftExercises.map((ex, exIdx) => (
                             <div key={ex.exerciseId} className="bg-secondary rounded-lg p-3 space-y-2">
                               <div className="flex items-center justify-between">
-                                <p className="text-xs font-semibold">{ex.exerciseName}</p>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-xs font-semibold">{ex.exerciseName}</p>
+                                  <button
+                                    onClick={() => removeDraftExercise(exIdx)}
+                                    className="text-muted-foreground hover:text-destructive transition-colors"
+                                    aria-label="Remove exercise"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </button>
+                                </div>
                                 {/* Unit toggle per exercise */}
                                 <div className="flex items-center gap-0.5 bg-background rounded-lg p-0.5">
                                   {(['lbs', 'kgs'] as WeightUnit[]).map((u) => (
@@ -331,6 +359,30 @@ const History = () => {
                               </button>
                             </div>
                           ))}
+
+                          {/* Add Exercise */}
+                          {(() => {
+                            const available = getAvailableExercises(log.split);
+                            if (available.length === 0) return null;
+                            return (
+                              <div className="bg-secondary rounded-lg p-3">
+                                <p className="text-xs font-medium mb-2 flex items-center gap-1.5">
+                                  <Plus className="w-3.5 h-3.5 text-primary" /> Add Exercise
+                                </p>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {available.map((ex) => (
+                                    <button
+                                      key={ex.id}
+                                      onClick={() => addDraftExercise(ex.id)}
+                                      className="text-[10px] bg-background hover:bg-primary/10 hover:text-primary border border-border rounded-md px-2 py-1 transition-colors"
+                                    >
+                                      {ex.name}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })()}
 
                           {/* Save / Cancel */}
                           <div className="flex gap-2 pt-1">
