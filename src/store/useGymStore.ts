@@ -9,6 +9,7 @@ export interface Exercise {
   name: string;
   split: Split;
   imageUrl: string;
+  allSplits?: boolean;
 }
 
 export interface SetEntry {
@@ -89,22 +90,22 @@ const defaultExercises: Exercise[] = [
   { id: 'push-3', name: 'Incline Press ', split: 'Push', imageUrl: 'https://app-media.fitbod.me/v2/162/images/landscape/0_960x540.jpg' },
   { id: 'push-4', name: 'Vertical Chest Press', split: 'Push', imageUrl: 'https://www.panattagymequipment.com.au/wp-content/uploads/2020/05/pic-1mth033_03-700x700.jpg' },
   { id: 'push-5', name: 'Shoulder Press', split: 'Push', imageUrl: 'https://gymgear.com/cdn/shop/articles/AdobeStock_29077846-scaled-4601848_6d1b52a1-9df4-426d-a160-b2c938ebfa0b-5067431.jpg?v=1767911052' },
-  { id: 'push-6', name: 'Lateral Raises', split: 'Push', imageUrl: 'https://i0.wp.com/www.muscleandfitness.com/wp-content/uploads/2019/06/Jeremy-Buendia-Lateral-Dumbbell-Raise.jpg?quality=86&strip=all' },
+  { id: 'push-6', name: 'Lateral Raises', split: 'Push', imageUrl: 'https://i0.wp.com/www.muscleandfitness.com/wp-content/uploads/2019/06/Jeremy-Buendia-Lateral-Dumbbell-Raise.jpg?quality=86&strip=all', allSplits: true },
   { id: 'push-7', name: 'Triceps Cable Overhead', split: 'Push', imageUrl: 'https://i.ytimg.com/vi/1u18yJELsh0/maxresdefault.jpg' },
   { id: 'push-8', name: 'Triceps Push Down', split: 'Push', imageUrl: 'https://media.istockphoto.com/id/1342504639/photo/a-man-doing-triceps-pushdown-exercise-at-the-gym.jpg?s=612x612&w=0&k=20&c=bE74g7r9thVCwLSLcftp4nle-bWe2iOjs3_xL92tiIA=' },
   // Pull
   { id: 'pull-1', name: 'Rear Delt Fly', split: 'Pull', imageUrl: 'https://cdn.muscleandstrength.com/sites/default/files/machine-reverse-fly.jpg' },
   { id: 'pull-2', name: 'Lat Pull Down', split: 'Pull', imageUrl: 'https://cdn.muscleandstrength.com/sites/default/files/lat-pull-down.jpg' },
   { id: 'pull-3', name: 'Seated Row', split: 'Pull', imageUrl: 'https://cdn.muscleandstrength.com/sites/default/files/seated-cable-row.jpg' },
-  { id: 'pull-4', name: 'Hammer Curl', split: 'Pull', imageUrl: 'https://theenterpriseworld.com/wp-content/uploads/2025/03/1.-Hammer-Curls-Muscles-Workout-for-Bigger-Stronger-Arms-by-As-Images.jpg' },
+  { id: 'pull-4', name: 'Hammer Curl', split: 'Pull', imageUrl: 'https://theenterpriseworld.com/wp-content/uploads/2025/03/1.-Hammer-Curls-Muscles-Workout-for-Bigger-Stronger-Arms-by-As-Images.jpg', allSplits: true },
   { id: 'pull-5', name: 'T-Bar Row', split: 'Pull', imageUrl: 'https://cdn.muscleandstrength.com/sites/default/files/t-bar-row.jpg' },
   { id: 'pull-6', name: 'Lateral Row Machine', split: 'Pull', imageUrl: 'https://shop.lifefitness.com/cdn/shop/files/Strength-PlateLoaded-IsoLateralRow-7_1200x1200.jpg?v=1748945275' },
   { id: 'pull-7', name: 'Shrugs', split: 'Pull', imageUrl: 'https://cdn.muscleandstrength.com/sites/default/files/dumbbell-shrug.jpg' },
   // Arms & Core
-  { id: 'arms-1', name: 'Preacher Curl', split: 'Arms & Core', imageUrl: 'https://ozhelp.org.au/blog/wp-content/uploads/2025/02/Mastering-the-Preacher-Curl-A-Step-by-Step-Video-Guide.jpg' },
+  { id: 'arms-1', name: 'Preacher Curl', split: 'Arms & Core', imageUrl: 'https://ozhelp.org.au/blog/wp-content/uploads/2025/02/Mastering-the-Preacher-Curl-A-Step-by-Step-Video-Guide.jpg', allSplits: true },
   { id: 'arms-2', name: 'Wrist Curl', split: 'Arms & Core', imageUrl: 'https://www.puregym.com/media/x3cpuyoz/wrist-flexion.jpg?quality=80' },
-  { id: 'arms-3', name: 'Reverse Curl', split: 'Arms & Core', imageUrl: 'https://barbend.com/wp-content/uploads/2023/01/Barbend.com-Article-Image-760x427-Person-performing-a-reverse-bicep-curl.jpg' },
-  { id: 'arms-4', name: 'Incline Curl', split: 'Arms & Core', imageUrl: 'https://cdn.jefit.com/assets/img/exercises/gifs/106.gif' },
+  { id: 'arms-3', name: 'Reverse Curl', split: 'Arms & Core', imageUrl: 'https://barbend.com/wp-content/uploads/2023/01/Barbend.com-Article-Image-760x427-Person-performing-a-reverse-bicep-curl.jpg', allSplits: true },
+  { id: 'arms-4', name: 'Incline Curl', split: 'Arms & Core', imageUrl: 'https://cdn.jefit.com/assets/img/exercises/gifs/106.gif', allSplits: true },
   { id: 'arms-5', name: 'Torso Rotation', split: 'Arms & Core', imageUrl: 'https://strongerwellness.com/cdn/shop/products/5_5.jpg?v=1649075354&width=2048' },
   { id: 'arms-6', name: 'Abdominal Machine', split: 'Arms & Core', imageUrl: 'https://i.ytimg.com/vi/V7p_DmkYLZw/maxresdefault.jpg' },
   { id: 'arms-7', name: 'General Abs', split: 'Arms & Core', imageUrl: 'https://i0.wp.com/www.muscleandfitness.com/wp-content/uploads/2017/07/1109-ryan-terry-weighted-crunch-abs.jpg?quality=86&strip=all' },
@@ -195,7 +196,7 @@ export const useGymStore = create<GymState>()(
       completeWorkout: () => {
         const state = get();
         const { currentWorkout, exercises: allExercises } = state;
-        const splitExercises = allExercises.filter((e) => e.split === currentWorkout.split);
+        const splitExercises = allExercises.filter((e) => e.split === currentWorkout.split || e.allSplits);
 
         const exerciseLogs: ExerciseLog[] = splitExercises
           .filter((e) => currentWorkout.exercises[e.id]?.some((s) => s.reps > 0))
