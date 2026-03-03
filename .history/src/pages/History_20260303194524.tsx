@@ -36,17 +36,14 @@ const History = () => {
   const [draftExercises, setDraftExercises] = useState<ExerciseLog[]>([]);
   const [draftCardio, setDraftCardio] = useState<CardioLog>({ time: 0, distance: 0, calories: 0 });
 
-const startEdit = (logId: string) => {
-  const log = workoutLogs.find((w) => w.id === logId);
-  if (!log) return;
-  setDraftExercises(cloneExercises(log.exercises));
-  setDraftCardio({
-    ...log.cardio,
-    distance: Math.round((log.cardio.distance / 1.60934) * 100) / 100, // km → miles for editing
-  });
-  setEditingId(logId);
-  setExpandedId(logId);
-};
+  const startEdit = (logId: string) => {
+    const log = workoutLogs.find((w) => w.id === logId);
+    if (!log) return;
+    setDraftExercises(cloneExercises(log.exercises));
+    setDraftCardio({ ...log.cardio });
+    setEditingId(logId);
+    setExpandedId(logId);
+  };
 
   const cancelEdit = () => {
     setEditingId(null);
@@ -271,7 +268,7 @@ const startEdit = (logId: string) => {
                               {(['time', 'distance', 'calories'] as const).map((field) => (
                                 <div key={field}>
                                   <p className="text-[10px] text-muted-foreground mb-1 capitalize">
-                                    {field === 'time' ? 'Time (min)' : field === 'distance' ? 'Dist (miles)' : 'Cal'}
+                                    {field === 'time' ? 'Time (min)' : field === 'distance' ? 'Dist (m)' : 'Cal'}
                                   </p>
                                   <Input
                                     type="number"

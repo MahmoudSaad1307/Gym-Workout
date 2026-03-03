@@ -234,7 +234,7 @@ export const useGymStore = create<GymState>()(
     updateWorkoutLog: (logId, updatedExercises, updatedCardio) => {
   const cardioInKm = {
     ...updatedCardio,
-    distance: Math.round(updatedCardio.distance * 1.60934 * 100) / 100, // miles → km
+    distance: Math.round(updatedCardio.distance * 1.60934 * 100) / 100,
   };
   set((state) => ({
     workoutLogs: state.workoutLogs.map((w) =>

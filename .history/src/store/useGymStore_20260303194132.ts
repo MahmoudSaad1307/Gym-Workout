@@ -231,17 +231,20 @@ export const useGymStore = create<GymState>()(
           workoutLogs: state.workoutLogs.filter((w) => w.id !== id),
         })),
 
-    updateWorkoutLog: (logId, updatedExercises, updatedCardio) => {
-  const cardioInKm = {
-    ...updatedCardio,
-    distance: Math.round(updatedCardio.distance * 1.60934 * 100) / 100, // miles → km
-  };
-  set((state) => ({
-    workoutLogs: state.workoutLogs.map((w) =>
-      w.id === logId ? { ...w, exercises: updatedExercises, cardio: cardioInKm } : w
-    ),
-  }));
-},
+      updateWorkoutLog: (logId, updatedExercises, updatedCardio) =>
+      {
+        //   const cardioInKm = {
+        //   ...currentWorkout.cardio,
+        //   distance: Math.round(currentWorkout.cardio.distance * 1.60934 * 100) / 100,
+        // };
+
+
+        set((state) => ({
+          workoutLogs: state.workoutLogs.map((w) =>
+            w.id === logId ? { ...w, exercises: updatedExercises, cardio: updatedCardio } : w,
+          ),
+        })),
+      },
 
       addExercise: (name, split, imageUrl) => {
         const id = `custom-${Date.now()}`;
