@@ -103,7 +103,7 @@ const defaultExercises: Exercise[] = [
   { id: 'pull-7', name: 'Shrugs', split: 'Pull', imageUrl: 'https://cdn.muscleandstrength.com/sites/default/files/dumbbell-shrug.jpg' },
   // Arms & Core
   { id: 'arms-1', name: 'Preacher Curl', split: 'Arms & Core', imageUrl: 'https://ozhelp.org.au/blog/wp-content/uploads/2025/02/Mastering-the-Preacher-Curl-A-Step-by-Step-Video-Guide.jpg', allSplits: true },
-  { id: 'arms-2', name: 'Wrist Curl', split: 'Arms & Core', imageUrl: 'https://www.puregym.com/media/x3cpuyoz/wrist-flexion.jpg?quality=80', allSplits: true },
+  { id: 'arms-2', name: 'Wrist Curl', split: 'Arms & Core', imageUrl: 'https://www.puregym.com/media/x3cpuyoz/wrist-flexion.jpg?quality=80', },
   { id: 'arms-3', name: 'Reverse Curl', split: 'Arms & Core', imageUrl: 'https://barbend.com/wp-content/uploads/2023/01/Barbend.com-Article-Image-760x427-Person-performing-a-reverse-bicep-curl.jpg', allSplits: true },
   { id: 'arms-4', name: 'Incline Curl', split: 'Arms & Core', imageUrl: 'https://cdn.jefit.com/assets/img/exercises/gifs/106.gif', allSplits: true },
   { id: 'arms-5', name: 'Torso Rotation', split: 'Arms & Core', imageUrl: 'https://strongerwellness.com/cdn/shop/products/5_5.jpg?v=1649075354&width=2048' },
