@@ -91,8 +91,8 @@ const defaultExercises: Exercise[] = [
   { id: 'push-4', name: 'Vertical Chest Press', split: 'Push', imageUrl: 'https://www.panattagymequipment.com.au/wp-content/uploads/2020/05/pic-1mth033_03-700x700.jpg' },
   { id: 'push-5', name: 'Shoulder Press', split: 'Push', imageUrl: 'https://gymgear.com/cdn/shop/articles/AdobeStock_29077846-scaled-4601848_6d1b52a1-9df4-426d-a160-b2c938ebfa0b-5067431.jpg?v=1767911052' },
   { id: 'push-6', name: 'Lateral Raises', split: 'Push', imageUrl: 'https://i0.wp.com/www.muscleandfitness.com/wp-content/uploads/2019/06/Jeremy-Buendia-Lateral-Dumbbell-Raise.jpg?quality=86&strip=all', allSplits: true },
-  { id: 'push-7', name: 'Triceps Cable Overhead', split: 'Push', imageUrl: 'https://i.ytimg.com/vi/1u18yJELsh0/maxresdefault.jpg' ,allSplits: true },
-  { id: 'push-8', name: 'Triceps Push Down', split: 'Push', imageUrl: 'https://media.istockphoto.com/id/1342504639/photo/a-man-doing-triceps-pushdown-exercise-at-the-gym.jpg?s=612x612&w=0&k=20&c=bE74g7r9thVCwLSLcftp4nle-bWe2iOjs3_xL92tiIA=',allSplits:true },
+  { id: 'push-7', name: 'Triceps Cable Overhead', split: 'Push', imageUrl: 'https://i.ytimg.com/vi/1u18yJELsh0/maxresdefault.jpg' },
+  { id: 'push-8', name: 'Triceps Push Down', split: 'Push', imageUrl: 'https://media.istockphoto.com/id/1342504639/photo/a-man-doing-triceps-pushdown-exercise-at-the-gym.jpg?s=612x612&w=0&k=20&c=bE74g7r9thVCwLSLcftp4nle-bWe2iOjs3_xL92tiIA=',allSplits },
   // Pull
   { id: 'pull-1', name: 'Rear Delt Fly', split: 'Pull', imageUrl: 'https://cdn.muscleandstrength.com/sites/default/files/machine-reverse-fly.jpg' },
   { id: 'pull-2', name: 'Lat Pull Down', split: 'Pull', imageUrl: 'https://cdn.muscleandstrength.com/sites/default/files/lat-pull-down.jpg' },
