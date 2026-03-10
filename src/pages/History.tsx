@@ -10,13 +10,14 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/sonner';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useGymStore, type CardioLog, type ExerciseLog, type WeightUnit } from '@/store/useGymStore';
 import { format } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Activity, Check, ChevronDown, Dumbbell, Minus, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { Activity, Check, ChevronDown, Download, Dumbbell, Minus, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 
 // Deep clone helper
@@ -110,6 +111,58 @@ const startEdit = (logId: string) => {
     setDraftExercises((prev) => prev.filter((_, i) => i !== exIdx));
   };
 
+  const exportHistory = () => {
+    const totalWorkouts = workoutLogs.length;
+    const totalSets = workoutLogs.reduce((acc, log) => acc + log.exercises.reduce((sum, ex) => sum + ex.sets.length, 0), 0);
+    const totalVolume = workoutLogs.reduce(
+      (acc, log) => acc + log.exercises.reduce((sum, ex) => sum + ex.sets.reduce((setSum, s) => setSum + s.reps * s.weight, 0), 0),
+      0,
+    );
+
+    const content = [
+      'WORKOUT HISTORY EXPORT',
+      `Generated: ${format(new Date(), 'PPpp')}`,
+      '',
+      'SUMMARY',
+      `- Total workouts: ${totalWorkouts}`,
+      `- Total sets: ${totalSets}`,
+      `- Total volume: ${totalVolume.toLocaleString()}`,
+      '',
+      'DETAILS',
+      ...workoutLogs.flatMap((log, index) => {
+        const logSetCount = log.exercises.reduce((sum, ex) => sum + ex.sets.length, 0);
+        const logVolume = log.exercises.reduce(
+          (sum, ex) => sum + ex.sets.reduce((setSum, setEntry) => setSum + setEntry.reps * setEntry.weight, 0),
+          0,
+        );
+
+        return [
+          `#${index + 1} ${format(new Date(log.date), 'EEEE, MMM d, yyyy')} - ${log.split} Day`,
+          `Cardio: ${log.cardio.time} min | ${log.cardio.distance} km | ${log.cardio.calories} cal`,
+          `Total sets: ${logSetCount} | Total volume: ${logVolume.toLocaleString()}`,
+          ...log.exercises.flatMap((ex) => [
+            `  ${ex.exerciseName} (${ex.unit ?? 'lbs'})`,
+            ...ex.sets.map((setEntry, setIndex) => `    Set ${setIndex + 1}: ${setEntry.reps} reps × ${setEntry.weight} ${ex.unit ?? 'lbs'}`),
+          ]),
+          '',
+        ];
+      }),
+    ].join('\n');
+
+    const fileName = `workout-history-${format(new Date(), 'yyyy-MM-dd-HHmm')}.txt`;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    toast.success('History exported', {
+      description: `${totalWorkouts} workouts saved to ${fileName}`,
+    });
+  };
+
   if (workoutLogs.length === 0) {
     return (
       <motion.div
@@ -130,7 +183,12 @@ const startEdit = (logId: string) => {
       animate={{ opacity: 1, y: 0 }}
       className="pb-24 px-4 pt-4 max-w-lg mx-auto"
     >
-      <h1 className="text-2xl font-bold tracking-tight mb-6">History</h1>
+      <div className="flex items-center justify-between mb-6 gap-3">
+        <h1 className="text-2xl font-bold tracking-tight">History</h1>
+        <Button variant="outline" size="sm" onClick={exportHistory} className="shrink-0">
+          <Download className="w-3.5 h-3.5 mr-1.5" /> Export
+        </Button>
+      </div>
 
       <div className="space-y-3">
         {workoutLogs.map((log) => {
