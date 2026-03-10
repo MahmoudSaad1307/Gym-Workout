@@ -10,24 +10,14 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/sonner';
-import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { useGymStore, type CardioLog, type ExerciseLog, type Split, type WeightUnit, type WorkoutLog } from '@/store/useGymStore';
-import { format, isValid, parse } from 'date-fns';
+import { useGymStore, type CardioLog, type ExerciseLog, type WeightUnit } from '@/store/useGymStore';
+import { format } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Activity, Check, ChevronDown, Download, Dumbbell, Minus, Pencil, Plus, Trash2, Upload, X } from 'lucide-react';
+import { Activity, Check, ChevronDown, Download, Dumbbell, Minus, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 
 // Deep clone helper
@@ -38,128 +28,26 @@ function cloneExercises(exercises: ExerciseLog[]): ExerciseLog[] {
   }));
 }
 
-const validSplits: Split[] = ['Push', 'Pull', 'Arms & Core'];
-
-function parseHistoryExport(text: string): WorkoutLog[] {
-  const lines = text.replace(/\r\n/g, '\n').split('\n').map((line) => line.trimEnd());
-  const detailsIndex = lines.findIndex((line) => line.trim() === 'DETAILS');
-  if (detailsIndex === -1) {
-    throw new Error('Missing DETAILS section');
-  }
-
-  const importedLogs: WorkoutLog[] = [];
-  let currentLog: WorkoutLog | null = null;
-  let currentExercise: ExerciseLog | null = null;
-
-  const pushExercise = () => {
-    if (!currentLog || !currentExercise) return;
-    currentLog.exercises.push(currentExercise);
-    currentExercise = null;
-  };
-
-  const pushLog = () => {
-    if (!currentLog) return;
-    pushExercise();
-    importedLogs.push(currentLog);
-    currentLog = null;
-  };
-
-  for (let i = detailsIndex + 1; i < lines.length; i += 1) {
-    const line = lines[i];
-    if (!line.trim()) continue;
-
-    const workoutMatch = line.match(/^#\d+\s(.+?)\s-\s(.+)\sDay$/);
-    if (workoutMatch) {
-      pushLog();
-      const dateText = workoutMatch[1].trim();
-      const splitText = workoutMatch[2].trim();
-      if (!validSplits.includes(splitText as Split)) {
-        throw new Error(`Invalid split: ${splitText}`);
-      }
-      const parsedDate = parse(dateText, 'EEEE, MMM d, yyyy', new Date());
-      const fallbackDate = new Date(dateText);
-      const resolvedDate = isValid(parsedDate) ? parsedDate : fallbackDate;
-      if (!isValid(resolvedDate)) {
-        throw new Error(`Invalid date: ${dateText}`);
-      }
-      currentLog = {
-        id: `import-${Date.now()}-${importedLogs.length}`,
-        date: resolvedDate.toISOString(),
-        split: splitText as Split,
-        cardio: { time: 0, distance: 0, calories: 0 },
-        exercises: [],
-      };
-      continue;
-    }
-
-    if (!currentLog) {
-      continue;
-    }
-
-    const cardioMatch = line.match(/^Cardio:\s([\d.]+)\smin\s\|\s([\d.]+)\skm\s\|\s([\d.]+)\scal$/);
-    if (cardioMatch) {
-      currentLog.cardio = {
-        time: Number(cardioMatch[1]),
-        distance: Number(cardioMatch[2]),
-        calories: Number(cardioMatch[3]),
-      };
-      continue;
-    }
-
-    const exerciseMatch = line.match(/^ {2}(.+)\s\((lbs|kgs)\)$/);
-    if (exerciseMatch) {
-      pushExercise();
-      const exerciseName = exerciseMatch[1].trim();
-      const unit = exerciseMatch[2] as WeightUnit;
-      currentExercise = {
-        exerciseId: `${exerciseName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${currentLog.exercises.length}`,
-        exerciseName,
-        unit,
-        sets: [],
-      };
-      continue;
-    }
-
-    const setMatch = line.match(/^ {4}Set\s\d+:\s([\d.]+)\sreps\s[×x]\s([\d.]+)\s(lbs|kgs)$/);
-    if (setMatch && currentExercise) {
-      currentExercise.sets.push({
-        reps: Number(setMatch[1]),
-        weight: Number(setMatch[2]),
-      });
-    }
-  }
-
-  pushLog();
-
-  if (importedLogs.length === 0) {
-    throw new Error('No workout entries found');
-  }
-
-  return importedLogs;
-}
-
 const History = () => {
-  const { workoutLogs, deleteWorkout, updateWorkoutLog, importWorkoutLogs, exercises: allExercises } = useGymStore();
+  const { workoutLogs, deleteWorkout, updateWorkoutLog, exercises: allExercises } = useGymStore();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [importText, setImportText] = useState('');
-  const [importOpen, setImportOpen] = useState(false);
 
   // Draft state for the workout being edited
   const [draftExercises, setDraftExercises] = useState<ExerciseLog[]>([]);
   const [draftCardio, setDraftCardio] = useState<CardioLog>({ time: 0, distance: 0, calories: 0 });
 
-  const startEdit = (logId: string) => {
-    const log = workoutLogs.find((w) => w.id === logId);
-    if (!log) return;
-    setDraftExercises(cloneExercises(log.exercises));
-    setDraftCardio({
-      ...log.cardio,
-      distance: Math.round((log.cardio.distance / 1.60934) * 100) / 100, // km → miles for editing
-    });
-    setEditingId(logId);
-    setExpandedId(logId);
-  };
+const startEdit = (logId: string) => {
+  const log = workoutLogs.find((w) => w.id === logId);
+  if (!log) return;
+  setDraftExercises(cloneExercises(log.exercises));
+  setDraftCardio({
+    ...log.cardio,
+    distance: Math.round((log.cardio.distance / 1.60934) * 100) / 100, // km → miles for editing
+  });
+  setEditingId(logId);
+  setExpandedId(logId);
+};
 
   const cancelEdit = () => {
     setEditingId(null);
@@ -275,24 +163,6 @@ const History = () => {
     });
   };
 
-  const importHistory = () => {
-    try {
-      const imported = parseHistoryExport(importText);
-      importWorkoutLogs(imported);
-      setImportText('');
-      setImportOpen(false);
-      setExpandedId(imported[0]?.id ?? null);
-      setEditingId(null);
-      toast.success('History imported', {
-        description: `${imported.length} workouts added from text`,
-      });
-    } catch (error) {
-      toast.error('Import failed', {
-        description: error instanceof Error ? error.message : 'Invalid history format',
-      });
-    }
-  };
-
   if (workoutLogs.length === 0) {
     return (
       <motion.div
@@ -303,34 +173,6 @@ const History = () => {
         <Dumbbell className="w-16 h-16 text-muted-foreground/30 mb-4" />
         <h2 className="text-lg font-semibold text-muted-foreground">No workouts yet</h2>
         <p className="text-sm text-muted-foreground/60">Complete your first workout to see it here.</p>
-        <Dialog open={importOpen} onOpenChange={setImportOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="mt-4">
-              <Upload className="w-3.5 h-3.5 mr-1.5" /> Import History
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Import History</DialogTitle>
-              <DialogDescription>Paste previously exported history text to restore workouts.</DialogDescription>
-            </DialogHeader>
-            <Textarea
-              value={importText}
-              onChange={(e) => setImportText(e.target.value)}
-              className="min-h-[260px] font-mono text-xs"
-              placeholder="Paste full exported text here..."
-            />
-            <DialogFooter>
-              <Button
-                onClick={importHistory}
-                disabled={!importText.trim()}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground"
-              >
-                Import Data
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </motion.div>
     );
   }
@@ -343,39 +185,9 @@ const History = () => {
     >
       <div className="flex items-center justify-between mb-6 gap-3">
         <h1 className="text-2xl font-bold tracking-tight">History</h1>
-        <div className="flex items-center gap-2">
-          <Dialog open={importOpen} onOpenChange={setImportOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="shrink-0">
-                <Upload className="w-3.5 h-3.5 mr-1.5" /> Import
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Import History</DialogTitle>
-                <DialogDescription>Paste previously exported history text to restore workouts.</DialogDescription>
-              </DialogHeader>
-              <Textarea
-                value={importText}
-                onChange={(e) => setImportText(e.target.value)}
-                className="min-h-[260px] font-mono text-xs"
-                placeholder="Paste full exported text here..."
-              />
-              <DialogFooter>
-                <Button
-                  onClick={importHistory}
-                  disabled={!importText.trim()}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  Import Data
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          <Button variant="outline" size="sm" onClick={exportHistory} className="shrink-0">
-            <Download className="w-3.5 h-3.5 mr-1.5" /> Export
-          </Button>
-        </div>
+        <Button variant="outline" size="sm" onClick={exportHistory} className="shrink-0">
+          <Download className="w-3.5 h-3.5 mr-1.5" /> Export
+        </Button>
       </div>
 
       <div className="space-y-3">
