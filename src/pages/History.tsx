@@ -38,7 +38,7 @@ function cloneExercises(exercises: ExerciseLog[]): ExerciseLog[] {
   }));
 }
 
-const validSplits: Split[] = ['Push', 'Pull', 'Arms & Core'];
+const validSplits: Split[] = ['Push', 'Pull', 'Arms & Core', 'Home Workout'];
 
 function parseHistoryExport(text: string): WorkoutLog[] {
   const lines = text.replace(/\r\n/g, '\n').split('\n').map((line) => line.trimEnd());
@@ -206,7 +206,7 @@ const History = () => {
 
   const getAvailableExercises = (split: string) => {
     return allExercises
-      .filter((e) => e.split === split || e.allSplits)
+      .filter((e) => (split === 'Home Workout' ? e.split === 'Home Workout' : e.split === split || e.allSplits))
       .filter((e) => !draftExercises.some((d) => d.exerciseId === e.id));
   };
 

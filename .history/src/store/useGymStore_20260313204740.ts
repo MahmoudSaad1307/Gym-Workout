@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type Split = 'Push' | 'Pull' | 'Arms & Core' | 'Home Workout';
+export type Split = 'Push' | 'Pull' | 'Arms & Core';
 export type WeightUnit = 'lbs' | 'kgs';
 
 export interface Exercise {
@@ -94,6 +94,7 @@ const defaultExercises: Exercise[] = [
   { id: 'push-6', name: 'Lateral Raises', split: 'Push', imageUrl: 'https://i0.wp.com/www.muscleandfitness.com/wp-content/uploads/2019/06/Jeremy-Buendia-Lateral-Dumbbell-Raise.jpg?quality=86&strip=all', allSplits: true },
   { id: 'push-7', name: 'Triceps Cable Overhead', split: 'Push', imageUrl: 'https://i.ytimg.com/vi/1u18yJELsh0/maxresdefault.jpg', allSplits: true },
   { id: 'push-8', name: 'Triceps Push Down', split: 'Push', imageUrl: 'https://media.istockphoto.com/id/1342504639/photo/a-man-doing-triceps-pushdown-exercise-at-the-gym.jpg?s=612x612&w=0&k=20&c=bE74g7r9thVCwLSLcftp4nle-bWe2iOjs3_xL92tiIA=', allSplits: true },
+  { id: 'push-9', name: 'Push Up', split: 'Push', imageUrl: 'https://fitnessfaqs.com/wp-content/uploads/2023/12/IMG_1170.jpg', allSplits: true },
   // Pull
   { id: 'pull-1', name: 'Rear Delt Fly', split: 'Pull', imageUrl: 'https://cdn.muscleandstrength.com/sites/default/files/machine-reverse-fly.jpg' },
   { id: 'pull-2', name: 'Lat Pull Down', split: 'Pull', imageUrl: 'https://cdn.muscleandstrength.com/sites/default/files/lat-pull-down.jpg' },
@@ -102,6 +103,7 @@ const defaultExercises: Exercise[] = [
   { id: 'pull-5', name: 'T-Bar Row', split: 'Pull', imageUrl: 'https://cdn.muscleandstrength.com/sites/default/files/t-bar-row.jpg' },
   { id: 'pull-6', name: 'Lateral Row Machine', split: 'Pull', imageUrl: 'https://shop.lifefitness.com/cdn/shop/files/Strength-PlateLoaded-IsoLateralRow-7_1200x1200.jpg?v=1748945275' },
   { id: 'pull-7', name: 'Shrugs', split: 'Pull', imageUrl: 'https://cdn.muscleandstrength.com/sites/default/files/dumbbell-shrug.jpg' },
+  { id: 'pull-8', name: 'Pull Up', split: 'Pull', imageUrl: 'https://cdn.centr.com/content/35000/34447/images/landscapemobile3x-header-lz-pullupbar-169.jpg', allSplits: true },
   // Arms & Core
   { id: 'arms-1', name: 'Preacher Curl', split: 'Arms & Core', imageUrl: 'https://ozhelp.org.au/blog/wp-content/uploads/2025/02/Mastering-the-Preacher-Curl-A-Step-by-Step-Video-Guide.jpg', allSplits: true },
   { id: 'arms-2', name: 'Wrist Curl', split: 'Arms & Core', imageUrl: 'https://www.puregym.com/media/x3cpuyoz/wrist-flexion.jpg?quality=80', allSplits: true },
@@ -111,13 +113,6 @@ const defaultExercises: Exercise[] = [
   { id: 'arms-6', name: 'Abdominal Machine', split: 'Arms & Core', imageUrl: 'https://i.ytimg.com/vi/V7p_DmkYLZw/maxresdefault.jpg' },
   { id: 'arms-7', name: 'General Abs', split: 'Arms & Core', imageUrl: 'https://i0.wp.com/www.muscleandfitness.com/wp-content/uploads/2017/07/1109-ryan-terry-weighted-crunch-abs.jpg?quality=86&strip=all' },
   { id: 'arms-8', name: 'Leg Raises', split: 'Arms & Core', imageUrl: 'https://selectfitness.com/cdn/shop/files/body-solid-powerline-pvkc83x-vertical-knee-raise-leg-lifts.jpg?v=1715190829&width=2048' },
-  // Home Workout
-  { id: 'home-1', name: 'Push Up', split: 'Home Workout', imageUrl: 'https://fitnessfaqs.com/wp-content/uploads/2023/12/IMG_1170.jpg' },
-  { id: 'home-2', name: 'Pull Up', split: 'Home Workout', imageUrl: 'https://cdn.centr.com/content/35000/34447/images/landscapemobile3x-header-lz-pullupbar-169.jpg' },
-  { id: 'home-3', name: 'Hand Gripper', split: 'Home Workout', imageUrl: 'https://www.mecastrong.com/wp-content/uploads/2026/02/Grip-strength-training-with-hand-grippers.webp' },
-  { id: 'home-4', name: 'Bodyweight Squat', split: 'Home Workout', imageUrl: 'https://hips.hearstapps.com/hmg-prod/images/man-exercising-at-home-royalty-free-image-1645047847.jpg?resize=980:*' },
-  { id: 'home-5', name: 'Plank Hold', split: 'Home Workout', imageUrl: 'https://gymnation.com/media/jpbjzofv/plank2.webp?width=956&height=675&v=1dc68400a14c040' },
-  // { id: 'home-6', name: 'Mountain Climbers', split: 'Home Workout', imageUrl: '' },
 ];
 
 const createInitialWorkout = (): CurrentWorkout => ({
@@ -204,9 +199,7 @@ export const useGymStore = create<GymState>()(
       completeWorkout: () => {
         const state = get();
         const { currentWorkout, exercises: allExercises } = state;
-        const splitExercises = allExercises.filter((e) =>
-          currentWorkout.split === 'Home Workout' ? e.split === 'Home Workout' : e.split === currentWorkout.split || e.allSplits,
-        );
+        const splitExercises = allExercises.filter((e) => e.split === currentWorkout.split || e.allSplits);
 
         const exerciseLogs: ExerciseLog[] = splitExercises
           .filter((e) => currentWorkout.exercises[e.id]?.some((s) => s.reps > 0))
@@ -304,7 +297,7 @@ export const useGymStore = create<GymState>()(
     }),
     {
       name: 'gym-tracker-storage',
-      version: 2,
+      version: 1,
       partialize: (state) => ({
         exercises: state.exercises,
         workoutLogs: state.workoutLogs,
@@ -312,23 +305,17 @@ export const useGymStore = create<GymState>()(
         unitPreference: state.unitPreference,
       }),
       migrate: (persisted: any, version: number) => {
-        const next = persisted ?? {};
-        const allSplitsMap = new Map(defaultExercises.filter((e) => e.allSplits).map((e) => [e.id, true]));
-        const persistedExercises = Array.isArray(next.exercises) ? next.exercises : [];
-
-        next.exercises = persistedExercises.map((e: any) => ({
-          ...e,
-          allSplits: allSplitsMap.get(e.id) || e.allSplits || undefined,
-        }));
-
-        if (version <= 1) {
-          const missingDefaults = defaultExercises.filter(
-            (exercise) => !next.exercises.some((persistedExercise: Exercise) => persistedExercise.id === exercise.id),
+        if (version === 0) {
+          // Merge allSplits flag from defaults into persisted exercises
+          const allSplitsMap = new Map(
+            defaultExercises.filter(e => e.allSplits).map(e => [e.id, true])
           );
-          next.exercises = [...next.exercises, ...missingDefaults];
+          persisted.exercises = (persisted.exercises || []).map((e: any) => ({
+            ...e,
+            allSplits: allSplitsMap.get(e.id) || e.allSplits || undefined,
+          }));
         }
-
-        return next;
+        return persisted;
       },
     },
   ),

@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
 
-const splits: Split[] = ['Push', 'Pull', 'Arms & Core'];
+const splits: Split[] = ['Push', 'Pull', 'Arms & Core', 'Home Workout'];
 
 const ManageExercises = () => {
   const { exercises, addExercise, editExercise, deleteExercise } = useGymStore();
@@ -82,7 +82,7 @@ const ManageExercises = () => {
               </div>
               <div>
                 <Label className="text-xs mb-1.5 block">Split</Label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {splits.map((s) => (
                     <button
                       key={s}

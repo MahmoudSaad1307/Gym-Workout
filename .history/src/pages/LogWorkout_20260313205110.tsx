@@ -28,9 +28,7 @@ const LogWorkout = () => {
     completeWorkout,
   } = useGymStore();
 
-  const splitExercises = exercises.filter((e) =>
-    currentWorkout.split === 'Home Workout' ? e.split === 'Home Workout' : e.split === currentWorkout.split || e.allSplits,
-  );
+  const splitExercises = exercises.filter((e) => e.split === currentWorkout.split || e.allSplits);
 
   const getExerciseUnit = (exerciseId: string): WeightUnit =>
     currentWorkout.exerciseUnits[exerciseId] ?? unitPreference;

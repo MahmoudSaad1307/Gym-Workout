@@ -114,10 +114,10 @@ const defaultExercises: Exercise[] = [
   // Home Workout
   { id: 'home-1', name: 'Push Up', split: 'Home Workout', imageUrl: 'https://fitnessfaqs.com/wp-content/uploads/2023/12/IMG_1170.jpg' },
   { id: 'home-2', name: 'Pull Up', split: 'Home Workout', imageUrl: 'https://cdn.centr.com/content/35000/34447/images/landscapemobile3x-header-lz-pullupbar-169.jpg' },
-  { id: 'home-3', name: 'Hand Gripper', split: 'Home Workout', imageUrl: 'https://www.mecastrong.com/wp-content/uploads/2026/02/Grip-strength-training-with-hand-grippers.webp' },
-  { id: 'home-4', name: 'Bodyweight Squat', split: 'Home Workout', imageUrl: 'https://hips.hearstapps.com/hmg-prod/images/man-exercising-at-home-royalty-free-image-1645047847.jpg?resize=980:*' },
-  { id: 'home-5', name: 'Plank Hold', split: 'Home Workout', imageUrl: 'https://gymnation.com/media/jpbjzofv/plank2.webp?width=956&height=675&v=1dc68400a14c040' },
-  // { id: 'home-6', name: 'Mountain Climbers', split: 'Home Workout', imageUrl: '' },
+  { id: 'home-3', name: 'Hand Gripper', split: 'Home Workout', imageUrl: 'https://m.media-amazon.com/images/I/61Y+h9M8umL._AC_UF1000,1000_QL80_.jpg' },
+  { id: 'home-4', name: 'Bodyweight Squat', split: 'Home Workout', imageUrl: 'https://steelsupplements.com/cdn/shop/articles/shutterstock_1516199924_1000x.jpg?v=1660697177' },
+  { id: 'home-5', name: 'Plank Hold', split: 'Home Workout', imageUrl: 'https://cdn.shopify.com/s/files/1/0055/3918/7341/files/plank.jpg?v=1673542898' },
+  { id: 'home-6', name: 'Mountain Climbers', split: 'Home Workout', imageUrl: 'https://www.verywellfit.com/thmb/2vV1f4vUF2yVNiQ8qX1SgS3QjcU=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/MountainClimbers_annotated-6f39f854aca548f8ac42b73bd2eebde1.jpg' },
 ];
 
 const createInitialWorkout = (): CurrentWorkout => ({
@@ -204,9 +204,7 @@ export const useGymStore = create<GymState>()(
       completeWorkout: () => {
         const state = get();
         const { currentWorkout, exercises: allExercises } = state;
-        const splitExercises = allExercises.filter((e) =>
-          currentWorkout.split === 'Home Workout' ? e.split === 'Home Workout' : e.split === currentWorkout.split || e.allSplits,
-        );
+        const splitExercises = allExercises.filter((e) => e.split === currentWorkout.split || e.allSplits);
 
         const exerciseLogs: ExerciseLog[] = splitExercises
           .filter((e) => currentWorkout.exercises[e.id]?.some((s) => s.reps > 0))

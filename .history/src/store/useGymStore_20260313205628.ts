@@ -114,10 +114,10 @@ const defaultExercises: Exercise[] = [
   // Home Workout
   { id: 'home-1', name: 'Push Up', split: 'Home Workout', imageUrl: 'https://fitnessfaqs.com/wp-content/uploads/2023/12/IMG_1170.jpg' },
   { id: 'home-2', name: 'Pull Up', split: 'Home Workout', imageUrl: 'https://cdn.centr.com/content/35000/34447/images/landscapemobile3x-header-lz-pullupbar-169.jpg' },
-  { id: 'home-3', name: 'Hand Gripper', split: 'Home Workout', imageUrl: 'https://www.mecastrong.com/wp-content/uploads/2026/02/Grip-strength-training-with-hand-grippers.webp' },
+  { id: 'home-3', name: 'Hand Gripper', split: 'Home Workout', imageUrl: '' },
   { id: 'home-4', name: 'Bodyweight Squat', split: 'Home Workout', imageUrl: 'https://hips.hearstapps.com/hmg-prod/images/man-exercising-at-home-royalty-free-image-1645047847.jpg?resize=980:*' },
-  { id: 'home-5', name: 'Plank Hold', split: 'Home Workout', imageUrl: 'https://gymnation.com/media/jpbjzofv/plank2.webp?width=956&height=675&v=1dc68400a14c040' },
-  // { id: 'home-6', name: 'Mountain Climbers', split: 'Home Workout', imageUrl: '' },
+  { id: 'home-5', name: 'Plank Hold', split: 'Home Workout', imageUrl: '' },
+  { id: 'home-6', name: 'Mountain Climbers', split: 'Home Workout', imageUrl: '' },
 ];
 
 const createInitialWorkout = (): CurrentWorkout => ({

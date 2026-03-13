@@ -117,7 +117,7 @@ const defaultExercises: Exercise[] = [
   { id: 'home-3', name: 'Hand Gripper', split: 'Home Workout', imageUrl: 'https://www.mecastrong.com/wp-content/uploads/2026/02/Grip-strength-training-with-hand-grippers.webp' },
   { id: 'home-4', name: 'Bodyweight Squat', split: 'Home Workout', imageUrl: 'https://hips.hearstapps.com/hmg-prod/images/man-exercising-at-home-royalty-free-image-1645047847.jpg?resize=980:*' },
   { id: 'home-5', name: 'Plank Hold', split: 'Home Workout', imageUrl: 'https://gymnation.com/media/jpbjzofv/plank2.webp?width=956&height=675&v=1dc68400a14c040' },
-  // { id: 'home-6', name: 'Mountain Climbers', split: 'Home Workout', imageUrl: '' },
+  { id: 'home-6', name: 'Mountain Climbers', split: 'Home Wokrkout', imageUrl: '' },
 ];
 
 const createInitialWorkout = (): CurrentWorkout => ({
