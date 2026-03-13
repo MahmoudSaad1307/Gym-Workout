@@ -47,7 +47,6 @@ const getExerciseInputMode = (name: string) => {
     n.includes('push up') ||
     n.includes('pull up') ||
     n.includes('squat') ||
-    n.includes('hand gripper') ||
     n.includes('mountain climber')
   ) {
     return 'reps_only' as const;
