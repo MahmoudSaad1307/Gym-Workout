@@ -38,7 +38,7 @@ function cloneExercises(exercises: ExerciseLog[]): ExerciseLog[] {
   }));
 }
 
-const validSplits: Split[] = ['Push A', 'Pull A', 'Push B', 'Pull B', 'Home Workout', 'Push', 'Pull', 'Arms & Core'];
+const validSplits: Split[] = ['Workout A', 'Workout B', 'Workout C', 'Workout D', 'Home Workout', 'Push A', 'Pull A', 'Push B', 'Pull B', 'Push', 'Pull', 'Arms & Core'];
 
 const getExerciseInputMode = (name: string) => {
   const n = name.trim().toLowerCase();

@@ -11,7 +11,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Activity, CalendarIcon, Minus, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
-const splits: Split[] = ['Push A', 'Pull A', 'Push B', 'Pull B', 'Home Workout'];
+const splits: Split[] = ['Workout A', 'Workout B', 'Workout C', 'Workout D', 'Home Workout'];
 
 const LogWorkout = () => {
   const {

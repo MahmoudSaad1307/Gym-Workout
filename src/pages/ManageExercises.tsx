@@ -27,14 +27,14 @@ import {
 } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
 
-const splits: Split[] = ['Push A', 'Pull A', 'Push B', 'Pull B', 'Home Workout'];
+const splits: Split[] = ['Workout A', 'Workout B', 'Workout C', 'Workout D', 'Home Workout'];
 
 const ManageExercises = () => {
   const { exercises, addExercise, editExercise, deleteExercise } = useGymStore();
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [newName, setNewName] = useState('');
-  const [newSplit, setNewSplit] = useState<Split>('Push A');
+  const [newSplit, setNewSplit] = useState<Split>('Workout A');
   const [editId, setEditId] = useState('');
   const [editName, setEditName] = useState('');
 
