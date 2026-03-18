@@ -27,14 +27,14 @@ import {
 } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
 
-const splits: Split[] = ['Push', 'Pull', 'Arms & Core', 'Home Workout'];
+const splits: Split[] = ['Push A', 'Pull A', 'Push B', 'Pull B', 'Home Workout'];
 
 const ManageExercises = () => {
   const { exercises, addExercise, editExercise, deleteExercise } = useGymStore();
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [newName, setNewName] = useState('');
-  const [newSplit, setNewSplit] = useState<Split>('Push');
+  const [newSplit, setNewSplit] = useState<Split>('Push A');
   const [editId, setEditId] = useState('');
   const [editName, setEditName] = useState('');
 
@@ -82,7 +82,7 @@ const ManageExercises = () => {
               </div>
               <div>
                 <Label className="text-xs mb-1.5 block">Split</Label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                   {splits.map((s) => (
                     <button
                       key={s}

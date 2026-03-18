@@ -326,10 +326,8 @@ export const useGymStore = create<GymState>()(
         progressEntries: state.progressEntries,
         unitPreference: state.unitPreference,
       }),
-      migrate: (persisted: unknown, version: number) => {
-        const next = (persisted && typeof persisted === 'object' ? persisted : {}) as {
-          exercises?: Exercise[];
-        };
+      migrate: (persisted: any, version: number) => {
+        const next = persisted ?? {};
         const persistedExercises = Array.isArray(next.exercises) ? next.exercises : [];
         if (version <= 2) {
           const customExercises = persistedExercises.filter(
@@ -340,7 +338,7 @@ export const useGymStore = create<GymState>()(
         }
 
         const allSplitsMap = new Map(defaultExercises.filter((e) => e.allSplits).map((e) => [e.id, true]));
-        next.exercises = persistedExercises.map((e) => ({
+        next.exercises = persistedExercises.map((e: any) => ({
           ...e,
           allSplits: allSplitsMap.get(e.id) || e.allSplits || undefined,
         }));

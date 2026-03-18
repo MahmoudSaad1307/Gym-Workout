@@ -11,7 +11,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Activity, CalendarIcon, Minus, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
-const splits: Split[] = ['Push', 'Pull', 'Arms & Core', 'Home Workout'];
+const splits: Split[] = ['Push A', 'Pull A', 'Push B', 'Pull B', 'Home Workout'];
 
 const LogWorkout = () => {
   const {
@@ -85,7 +85,7 @@ const LogWorkout = () => {
       </Popover>
 
       {/* Split Selector */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-6">
         {splits.map((split) => (
           <button
             key={split}
