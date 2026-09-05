@@ -1,5 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { workoutService } from '@/services/workoutService';
+import { progressService } from '@/services/progressService';
+import { exerciseService } from '@/services/exerciseService';
+import { profileService } from '@/services/profileService';
+import { migrationService } from '@/services/migrationService';
+import { useAuthStore } from './useAuthStore';
 
 export type Split =
   | 'Workout A'
@@ -67,12 +73,21 @@ interface CurrentWorkout {
   exerciseUnits: Record<string, WeightUnit>;
 }
 
-interface GymState {
+export interface GymState {
   exercises: Exercise[];
   workoutLogs: WorkoutLog[];
   progressEntries: ProgressEntry[];
   unitPreference: WeightUnit;
   currentWorkout: CurrentWorkout;
+  isLoadingCloudData: boolean;
+
+  fetchCloudData: (userId: string) => Promise<void>;
+  syncLocalDataToCloud: (userId: string) => Promise<{
+    workoutsCount: number;
+    progressCount: number;
+    customExercisesCount: number;
+  }>;
+  resetToDefaults: () => void;
 
   setUnitPreference: (unit: WeightUnit) => void;
   setSplit: (split: Split) => void;
@@ -96,7 +111,7 @@ interface GymState {
   deleteProgressEntry: (id: string) => void;
 }
 
-const defaultExercises: Exercise[] = [
+export const defaultExercises: Exercise[] = [
   // Workout A
   { id: 'workout-a-1', name: 'Lat Pull Down', split: 'Workout A', imageUrl: 'https://cdn.muscleandstrength.com/sites/default/files/lat-pull-down.jpg' },
   { id: 'workout-a-2', name: 'Incline Press', split: 'Workout A', imageUrl: 'https://app-media.fitbod.me/v2/162/images/landscape/0_960x540.jpg' },
@@ -139,7 +154,6 @@ const defaultExercises: Exercise[] = [
   { id: 'home-3', name: 'Hand Gripper', split: 'Home Workout', imageUrl: 'https://www.mecastrong.com/wp-content/uploads/2026/02/Grip-strength-training-with-hand-grippers.webp' },
   { id: 'home-4', name: 'Bodyweight Squat', split: 'Home Workout', imageUrl: 'https://hips.hearstapps.com/hmg-prod/images/man-exercising-at-home-royalty-free-image-1645047847.jpg?resize=980:*' },
   { id: 'home-5', name: 'Plank Hold', split: 'Home Workout', imageUrl: 'https://gymnation.com/media/jpbjzofv/plank2.webp?width=956&height=675&v=1dc68400a14c040' },
-  // { id: 'home-6', name: 'Mountain Climbers', split: 'Home Workout', imageUrl: '' },
 ];
 
 const createInitialWorkout = (): CurrentWorkout => ({
@@ -150,6 +164,10 @@ const createInitialWorkout = (): CurrentWorkout => ({
   exerciseUnits: {},
 });
 
+const getUserId = (): string | null => {
+  return useAuthStore.getState().user?.id ?? null;
+};
+
 export const useGymStore = create<GymState>()(
   persist(
     (set, get) => ({
@@ -158,8 +176,61 @@ export const useGymStore = create<GymState>()(
       progressEntries: [],
       unitPreference: 'lbs',
       currentWorkout: createInitialWorkout(),
+      isLoadingCloudData: false,
 
-      setUnitPreference: (unit) => set({ unitPreference: unit }),
+      fetchCloudData: async (userId: string) => {
+        if (!userId) return;
+        set({ isLoadingCloudData: true });
+
+        try {
+          const [cloudExercises, cloudWorkouts, cloudProgress, profile] = await Promise.all([
+            exerciseService.getExercises(),
+            workoutService.getWorkoutLogs(userId),
+            progressService.getProgressEntries(userId),
+            profileService.getProfile(userId),
+          ]);
+
+          const exercises = cloudExercises.length > 0 ? cloudExercises : defaultExercises;
+
+          set({
+            exercises,
+            workoutLogs: cloudWorkouts,
+            progressEntries: cloudProgress,
+            unitPreference: profile?.unitPreference ?? get().unitPreference,
+            isLoadingCloudData: false,
+          });
+        } catch (err) {
+          console.error('Failed to load cloud data:', err);
+          set({ isLoadingCloudData: false });
+        }
+      },
+
+      syncLocalDataToCloud: async (userId: string) => {
+        const res = await migrationService.migrateLocalData(userId);
+        // Refresh cloud data after migration
+        await get().fetchCloudData(userId);
+        return res;
+      },
+
+      resetToDefaults: () => {
+        set({
+          exercises: defaultExercises,
+          workoutLogs: [],
+          progressEntries: [],
+          unitPreference: 'lbs',
+          currentWorkout: createInitialWorkout(),
+        });
+      },
+
+      setUnitPreference: (unit) => {
+        set({ unitPreference: unit });
+        const userId = getUserId();
+        if (userId) {
+          profileService.updateUnitPreference(userId, unit).catch((err) => {
+            console.error('Cloud updateUnitPreference error:', err);
+          });
+        }
+      },
 
       setSplit: (split) =>
         set((state) => ({
@@ -256,73 +327,133 @@ export const useGymStore = create<GymState>()(
           workoutLogs: [log, ...state.workoutLogs],
           currentWorkout: createInitialWorkout(),
         });
+
+        const userId = getUserId();
+        if (userId) {
+          workoutService.createWorkoutLog(userId, log).catch((err) => {
+            console.error('Cloud createWorkoutLog error:', err);
+          });
+        }
       },
 
-      deleteWorkout: (id) =>
+      deleteWorkout: (id) => {
         set((state) => ({
           workoutLogs: state.workoutLogs.filter((w) => w.id !== id),
-        })),
+        }));
+
+        workoutService.deleteWorkoutLog(id).catch((err) => {
+          console.error('Cloud deleteWorkoutLog error:', err);
+        });
+      },
 
       updateWorkoutLog: (logId, updatedExercises, updatedCardio) => {
         const cardioInKm = {
           ...updatedCardio,
           distance: Math.round(updatedCardio.distance * 1.60934 * 100) / 100,
         };
+
         set((state) => ({
           workoutLogs: state.workoutLogs.map((w) =>
             w.id === logId ? { ...w, exercises: updatedExercises, cardio: cardioInKm } : w
           ),
         }));
+
+        workoutService.updateWorkoutLog(logId, updatedExercises, cardioInKm).catch((err) => {
+          console.error('Cloud updateWorkoutLog error:', err);
+        });
       },
 
-      importWorkoutLogs: (logs) =>
+      importWorkoutLogs: (logs) => {
         set((state) => ({
           workoutLogs: [...logs, ...state.workoutLogs],
-        })),
+        }));
+
+        const userId = getUserId();
+        if (userId) {
+          workoutService.bulkInsertWorkouts(userId, logs).catch((err) => {
+            console.error('Cloud bulkInsertWorkouts error:', err);
+          });
+        }
+      },
 
       addExercise: (name, split, imageUrl) => {
         const id = `custom-${Date.now()}`;
+        const newExercise: Exercise = {
+          id,
+          name,
+          split,
+          imageUrl: imageUrl ?? '',
+        };
+
         set((state) => ({
-          exercises: [
-            ...state.exercises,
-            {
-              id,
-              name,
-              split,
-              imageUrl: imageUrl ?? '',
-            },
-          ],
+          exercises: [...state.exercises, newExercise],
         }));
+
+        const userId = getUserId();
+        if (userId) {
+          exerciseService.addCustomExercise(userId, newExercise).catch((err) => {
+            console.error('Cloud addCustomExercise error:', err);
+          });
+        }
       },
 
-      editExercise: (id, name) =>
+      editExercise: (id, name) => {
         set((state) => ({
           exercises: state.exercises.map((e) => (e.id === id ? { ...e, name } : e)),
-        })),
+        }));
 
-      deleteExercise: (id) =>
+        exerciseService.editExercise(id, name).catch((err) => {
+          console.error('Cloud editExercise error:', err);
+        });
+      },
+
+      deleteExercise: (id) => {
         set((state) => ({
           exercises: state.exercises.filter((e) => e.id !== id),
-        })),
+        }));
+
+        exerciseService.deleteExercise(id).catch((err) => {
+          console.error('Cloud deleteExercise error:', err);
+        });
+      },
 
       addProgressEntry: (entry) => {
         const id = `progress-${Date.now()}`;
+        const newEntry: ProgressEntry = { id, ...entry };
+
         set((state) => ({
-          progressEntries: [{ id, ...entry }, ...state.progressEntries],
+          progressEntries: [newEntry, ...state.progressEntries],
         }));
+
+        const userId = getUserId();
+        if (userId) {
+          progressService.createProgressEntry(userId, newEntry).catch((err) => {
+            console.error('Cloud createProgressEntry error:', err);
+          });
+        }
       },
 
-      editProgressEntry: (id, data) =>
+      editProgressEntry: (id, data) => {
         set((state) => ({
           progressEntries: state.progressEntries.map((p) =>
             p.id === id ? { ...p, ...data } : p,
           ),
-        })),
+        }));
 
-      deleteProgressEntry: (id) =>
+        progressService.updateProgressEntry(id, data).catch((err) => {
+          console.error('Cloud updateProgressEntry error:', err);
+        });
+      },
+
+      deleteProgressEntry: (id) => {
         set((state) => ({
           progressEntries: state.progressEntries.filter((p) => p.id !== id),
-        })),
+        }));
+
+        progressService.deleteProgressEntry(id).catch((err) => {
+          console.error('Cloud deleteProgressEntry error:', err);
+        });
+      },
     }),
     {
       name: 'gym-tracker-storage',
